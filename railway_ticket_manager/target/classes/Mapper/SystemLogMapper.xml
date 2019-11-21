@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.railwayTicketManager.dao.SystemLogDAO">
+    <insert id="save"
+            parameterType="com.railwayTicketManager.api.SystemLogBO"
+            useGeneratedKeys="true"
+            keyProperty="id">
+	        INSERT INTO
+	            system_log
+	            (
+					requestIp,
+					sType,
+					description,
+					actionMethod,
+					actionUrl,
+					params,
+					ua,
+					classPath,
+					requestMethod,
+					startTime,
+					finishTime,
+					consumingTime,
+					rtParams,
+					exceptDesc,
+					exceptDetail
+	            )
+	        VALUES
+	            (
+		         #{requestIp}
+		        ,#{sType}
+		        ,#{description}
+		        ,#{actionMethod}
+		        ,#{actionUrl}
+		        ,#{params}
+		        ,#{ua}
+		        ,#{classPath}
+		        ,#{requestMethod}
+		        ,#{startTime}
+		        ,#{finishTime}
+		        ,#{consumingTime}
+		        ,#{rtParams}
+		        ,#{exceptDesc}
+		        ,#{exceptDetail}
+	            )
+	</insert>
+	<select id="getListPage"
+			parameterType="com.railwayTicketManager.dao.po.SystemMonitorPO"
+			resultType="com.railwayTicketManager.dao.po.SystemMonitorPO">
+		SELECT
+				id,
+				requestIp,
+				sType,
+				description,
+				actionMethod,
+				actionUrl,
+				params,
+				ua,
+				classPath,
+				requestMethod,
+				startTime,
+				finishTime,
+				consumingTime,
+				rtParams,
+				exceptDesc,
+				exceptDetail
+		FROM   system_log
+		<where>
+			<if test="sType > 0">
+				sType = #{sType}
+			</if>
+			<if test="startDate != null and startDate !=''">
+				AND startTime &gt;=  #{startDate}
+			</if>
+			<if test="endDate != null and endDate !=''">
+				AND finishTime &lt; #{endDate}
+			</if>
+		</where>
+		ORDER BY id desc limit #{page},10
+	</select>
+	<select id="getCount"
+			parameterType="com.railwayTicketManager.dao.po.SystemMonitorPO"
+			resultType="java.lang.Integer">
+		SELECT
+		Count(id)
+		FROM   system_log
+		<where>
+			<if test="sType > 0">
+				sType = #{sType}
+			</if>
+			<if test="startDate != null and startDate !=''">
+				AND startTime &gt;=  #{startDate}
+			</if>
+			<if test="endDate != null and endDate !=''">
+				AND finishTime &lt; #{endDate}
+			</if>
+		</where>
+	</select>
+	<delete id="removeById"
+			parameterType="com.railwayTicketManager.api.SystemLogBO">
+		delete
+		from system_log
+		where id=#{id}
+	</delete>
+</mapper>

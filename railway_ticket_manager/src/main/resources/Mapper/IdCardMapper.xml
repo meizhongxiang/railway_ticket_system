@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.railwayTicketManager.dao.IdCardDAO">
+    <insert id="userIdCardAdd"
+            parameterType="com.railwayTicketManager.dao.po.IdCardPO"
+            useGeneratedKeys="true"
+            keyProperty="userId">
+
+	        INSERT INTO   /* insert */
+	            id_card  /* user */
+	            (
+		        userId,
+    			cardId,
+    			userName,
+    			userBankId
+	            )
+	        VALUES
+	            (
+		         #{userId}
+		        ,#{cardId}
+		        ,#{userName}
+		        ,#{userBankId}
+	            )
+	</insert>
+	<select id="selectInfo"
+			parameterType="java.lang.Integer"
+			resultType="com.railwayTicketManager.dao.po.IdCardPO">
+            SELECT
+            	userId,
+    			cardId,
+    			userName,
+    			userBankId
+            FROM  id_card
+            WHERE userId=#{userId}
+	</select>
+    <update id="updateCardId"
+            parameterType="com.railwayTicketManager.dao.po.IdCardPO">
+                UPDATE   /* updateById */
+                    id_card  /* user */
+                SET
+				cardId		= #{cardId},
+				userBankId		= #{userBankId}
+                WHERE    userId = #{userId}
+        </update>
+</mapper>

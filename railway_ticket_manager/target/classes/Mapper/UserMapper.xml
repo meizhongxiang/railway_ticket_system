@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.railwayTicketManager.dao.UserDAO">
+    <!--userId accountId userName
+    userPhone userMail userBankId payPassword
+    balance createTime userStatus endTime-->
+    <insert id="userRegister"
+            parameterType="com.railwayTicketManager.dao.po.UserPO"
+            useGeneratedKeys="true"
+            keyProperty="userId">
+
+	        INSERT INTO   /* insert */
+	            user  /* user */ 
+	            (
+		        userId,
+    			accountId,
+    			userMail,
+    			balance,
+    			createTime,
+    			userStatus
+	            )
+	        VALUES
+	            (
+		         #{userId}
+		        ,#{accountId}
+		        ,#{userMail}
+		        ,#{balance}
+		        ,#{createTime}
+		        ,#{userStatus}
+	            )
+	</insert>
+	<select id="selectPersonInfo"
+			parameterType="com.railwayTicketManager.dao.po.UserPO"
+			resultType="com.railwayTicketManager.dao.po.UserPO">
+            SELECT
+                userId,
+                accountId,
+            	userName,
+    			userPhone,
+    			userBankId,
+    			payPassword,
+    			userBankPhone,
+		     	createTime
+            FROM  user
+            WHERE  accountId = #{accountId}
+            AND userId=#{userId}
+            AND userStatus!=0
+	</select>
+
+    <insert id="insertLogin"
+            parameterType="com.railwayTicketManager.dao.po.UserPO">
+			  INSERT INTO   /* insert */
+	            user_login
+	            (
+		         userId,
+    			 accountId,
+    			 userPassword,
+    			 userStatus
+	            )
+	        VALUES
+	            (
+		         #{userId}           /* 用户ID,使用序列 */
+		        ,#{accountId}         /* 姓名或昵称 */
+		        ,#{userPassword}        /* 账号ID，只能是邮箱 */
+		        ,#{userStatus}
+	            )
+	</insert>
+
+    <select id="checkAccountByPwd"
+            parameterType="com.railwayTicketManager.dao.po.UserPO"
+            resultType="com.railwayTicketManager.dao.po.UserPO">
+            SELECT
+                     userId
+                    ,accountId
+                    ,userPassword
+                    ,userStatus
+                FROM  user_login
+                WHERE  accountId = #{accountId}
+                AND userPassword=#{userPassword}
+	</select>
+    <select id="checkAccount"
+            parameterType="java.lang.String"
+            resultType="com.railwayTicketManager.dao.po.UserPO">
+            SELECT
+                     userId
+                    ,accountId
+                    ,userPassword
+                    ,userStatus
+                FROM  user_login
+                WHERE  accountId = #{accountId}
+	</select>
+    <delete id="deleteByUserId"
+            parameterType="com.railwayTicketManager.dao.po.UserPO">
+		DELETE
+		from user_login
+		WHERE userId=#{userId}
+		AND   accountId = #{accountId}
+	</delete>
+	<update id="updateUserStatus"
+            parameterType="com.railwayTicketManager.dao.po.UserPO">
+		UPDATE
+		 		user
+		SET		userStatus		= #{userStatus}
+		WHERE userId=#{userId}
+		AND   accountId = #{accountId}
+	</update>
+    <update id="updateStatus"
+            parameterType="com.railwayTicketManager.dao.po.UserPO">
+		UPDATE
+		 		user_login
+		SET		userStatus		= #{userStatus}
+		WHERE userId=#{userId}
+		AND   accountId = #{accountId}
+	</update>
+    <update id="realNameAccount"
+            parameterType="com.railwayTicketManager.dao.po.UserPO">
+                UPDATE   /* updateById */
+                    user  /* user */
+                SET
+                userName		= #{userName},
+				userPhone		= #{userPhone},
+				userBankId		= #{userBankId},
+				userBankPhone   = #{userBankPhone},
+				payPassword		= #{payPassword},
+				userStatus		= #{userStatus}
+                WHERE    userId = #{userId}
+                 AND   accountId = #{accountId}
+        </update>
+    <update id="forgetPwdByAccount"
+            parameterType="com.railwayTicketManager.dao.po.UserPO">
+                UPDATE
+                    user_login
+                SET
+				userPassword		= #{userPassword}
+                WHERE    userId = #{userId}
+                 AND   accountId = #{accountId}
+       </update>
+
+	<select id="selectLoginCount"
+			parameterType="java.lang.String" resultType="java.lang.Integer">
+				SELECT
+					count(userId)
+				from user_login
+				where accountId = #{accountId}
+				AND userStatus != 0
+	</select>
+	<update id="updateByIdAndAccount"
+			parameterType="com.railwayTicketManager.dao.po.UserPO">
+                UPDATE   /* updateById */
+                    user  /* user */
+                SET
+				userPhone		= #{userPhone},
+				userBankId		= #{userBankId},
+				userBankPhone   = #{userBankPhone},
+				payPassword		= #{payPassword}
+                WHERE    userId = #{userId}
+                 AND   accountId = #{accountId}
+        </update>
+    <!--
+            <select id="getList"
+                    parameterType="com.jiamsh.po.UserPO"
+                    resultType="com.jiamsh.po.UserPO">
+
+                    SELECT   /* getList */
+                         t.userId               AS userId              /* 用户ID,使用序列 */
+                        ,t.userName             AS userName            /* 姓名或昵称 */
+                        ,t.accountId            AS accountId           /* 账号ID，只能是邮箱 */
+                        ,t.passWord             AS passWord            /* 密码 */
+                        ,t.userMail             AS userMail            /* 邮箱 */
+                        ,t.userStatus           AS userStatus          /* 用户状态 0注销 1未验证 2已验证 */
+                        ,t.userType             AS userType            /* 用户类型，保留字段 */
+                        ,t.startTime            AS startTime           /* 注册时间 */
+                        ,t.endTime              AS endTime             /* 注销时间 */
+                    FROM   user  AS  t  /* user */
+                    <where>
+
+                        <if test="userId != null">
+                           AND  userId = #{userId} /* 用户ID,使用序列 */
+                        </if>
+
+                        <if test="userName != null and userName != ''">
+                           AND  userName = #{userName} /* 姓名或昵称 */
+                        </if>
+
+                        <if test="accountId != null and accountId != ''">
+                           AND  accountId = #{accountId} /* 账号ID，只能是邮箱 */
+                        </if>
+
+                        <if test="passWord != null and passWord != ''">
+                           AND  passWord = #{passWord} /* 密码 */
+                        </if>
+
+                        <if test="userMail != null and userMail != ''">
+                           AND  userMail = #{userMail} /* 邮箱 */
+                        </if>
+
+                        <if test="userStatus != null">
+                           AND  userStatus = #{userStatus} /* 用户状态 0注销 1未验证 2已验证 */
+                        </if>
+
+                        <if test="userType != null and userType != ''">
+                           AND  userType = #{userType} /* 用户类型，保留字段 */
+                        </if>
+
+                        <if test="startTime != null">
+                           AND  startTime = #{startTime} /* 注册时间 */
+                        </if>
+
+                        <if test="endTime != null">
+                           AND  endTime = #{endTime} /* 注销时间 */
+                        </if>
+
+                    </where>
+
+                    &lt;!&ndash; 排序信息 &ndash;&gt;
+                    <if test="userPO.orderBy != null and userPO.orderBy != ''">
+                       ORDER BY ${userPO.orderBy}  /* 排序 */
+                    </if>
+
+            </select>
+
+            <select id="getListPage"
+                    parameterType="com.jiamsh.po.UserPO"
+                    resultType="com.jiamsh.bo.UserRspBO">
+
+                    SELECT   /* getListPage */
+                         t.userId               AS userId              /* 用户ID,使用序列 */
+                        ,t.userName             AS userName            /* 姓名或昵称 */
+                        ,t.accountId            AS accountId           /* 账号ID，只能是邮箱 */
+                        ,t.passWord             AS passWord            /* 密码 */
+                        ,t.userMail             AS userMail            /* 邮箱 */
+                        ,t.userStatus           AS userStatus          /* 用户状态 0注销 1未验证 2已验证 */
+                        ,t.userType             AS userType            /* 用户类型，保留字段 */
+                        ,t.startTime            AS startTime           /* 注册时间 */
+                        ,t.endTime              AS endTime             /* 注销时间 */
+                    FROM   user  AS  t  /* user */
+                    <where>
+
+                        <if test="userPO.userId != null">
+                           AND  userId = #{userPO.userId} /* 用户ID,使用序列 */
+                        </if>
+
+                        <if test="userPO.userName != null and userPO.userName != ''">
+                           AND  userName = #{userPO.userName} /* 姓名或昵称 */
+                        </if>
+
+                        <if test="userPO.accountId != null and userPO.accountId != ''">
+                           AND  accountId = #{userPO.accountId} /* 账号ID，只能是邮箱 */
+                        </if>
+
+                        <if test="userPO.passWord != null and userPO.passWord != ''">
+                           AND  passWord = #{userPO.passWord} /* 密码 */
+                        </if>
+
+                        <if test="userPO.userMail != null and userPO.userMail != ''">
+                           AND  userMail = #{userPO.userMail} /* 邮箱 */
+                        </if>
+
+                        <if test="userPO.userStatus != null">
+                           AND  userStatus = #{userPO.userStatus} /* 用户状态 0注销 1未验证 2已验证 */
+                        </if>
+
+                        <if test="userPO.userType != null and userPO.userType != ''">
+                           AND  userType = #{userPO.userType} /* 用户类型，保留字段 */
+                        </if>
+
+                        <if test="userPO.startTime != null">
+                           AND  startTime = #{userPO.startTime} /* 注册时间 */
+                        </if>
+
+                        <if test="userPO.endTime != null">
+                           AND  endTime = #{userPO.endTime} /* 注销时间 */
+                        </if>
+
+                    </where>
+
+                    &lt;!&ndash; 排序信息 &ndash;&gt;
+                    <if test="userPO.orderBy != null and userPO.orderBy != ''">
+                       ORDER BY ${userPO.orderBy}  /* 排序 */
+                    </if>
+
+            </select>
+
+            <select id="getCheckById"
+                    parameterType="java.lang.Integer"
+                    resultType="java.lang.Integer">
+
+                    SELECT   /* getCheckById */
+                        count(1)
+                    FROM   user  /* user */
+                    WHERE  userId = #{userId}  /* 用户ID,使用序列 */
+
+            </select>
+
+            <insert id="insertBatch"
+                    parameterType="java.util.List">
+
+                    INSERT INTO   /* insertBatch */
+                        user  /* user */
+                        (
+                         userName            /* 姓名或昵称 */
+                        ,accountId           /* 账号ID，只能是邮箱 */
+                        ,passWord            /* 密码 */
+                        ,userMail            /* 邮箱 */
+                        ,userStatus          /* 用户状态 0注销 1未验证 2已验证 */
+                        ,userType            /* 用户类型，保留字段 */
+                        ,startTime           /* 注册时间 */
+                        ,endTime             /* 注销时间 */
+                        )
+                    VALUES
+                    <foreach collection="list" item="item" index="index" separator=",">
+                        (
+                         #{item.userName}         /* 姓名或昵称 */
+                        ,#{item.accountId}        /* 账号ID，只能是邮箱 */
+                        ,#{item.passWord}         /* 密码 */
+                        ,#{item.userMail}         /* 邮箱 */
+                        ,#{item.userStatus}       /* 用户状态 0注销 1未验证 2已验证 */
+                        ,#{item.userType}         /* 用户类型，保留字段 */
+                        ,#{item.startTime}        /* 注册时间 */
+                        ,#{item.endTime}          /* 注销时间 */
+                        )
+                     </foreach>
+
+            </insert>
+
+            <select id="selectByAidAndPwd"
+                    parameterType="com.jiamsh.po.UserPO"
+                    resultType="com.jiamsh.po.UserPO">
+
+                SELECT   /* selectByAidAndPwd */
+                        userId
+                        ,userStatus
+                        ,endTime
+                        ,userName
+                        ,logins
+                    FROM   userlogin  /* userlogin */
+                    WHERE  accountId = #{accountId}  /* 用户ID,使用序列 */
+                    AND passWord=#{passWord}
+            </select>
+
+            <select id="selectById"
+                    parameterType="com.jiamsh.po.UserPO"
+                    resultType="com.jiamsh.po.UserPO">
+
+                SELECT   /* selectByAidAndPwd */
+                        userId
+                        ,userStatus
+                        ,userName
+                        ,userMail
+                        ,startTime
+                        ,passWord
+                        ,accountId
+                    FROM   user  /* userlogin */
+                    WHERE  accountId = #{accountId}  /* 用户ID,使用序列 */
+                    AND userId=#{userId}
+                    AND userStatus=1
+            </select>
+
+            <select id="selectCount"
+                    parameterType="com.jiamsh.po.UserPO"
+                    resultType="java.lang.Integer">
+
+                SELECT   /* selectByAidAndPwd */
+                        count(userId)
+                    FROM   user  /* userlogin */
+                    WHERE  accountId = #{accountId}  /* 用户ID,使用序列 */
+                    AND userStatus=1
+                    OR userStatus=2
+            </select>
+
+            <update id="upLogin"
+                        parameterType="com.jiamsh.po.UserPO">
+
+                    UPDATE   /* updateById */
+                        userlogin  /* user */
+                    SET
+                          userStatus			 = #{userStatus}          /* 用户状态 0注销 1未验证 2已验证 */
+                        ,passWord            = #{passWord}
+                        ,userName            = #{userName}
+                        ,accountId            = #{accountId}
+                        ,endTime             = #{endTime}
+                    WHERE    userId = #{userId}  /* 用户ID,使用序列 */
+            </update>
+
+            <update id="deleteLogin"
+                    parameterType="com.jiamsh.po.UserPO">
+
+                    UPDATE   /* updateById */
+                        userlogin  /* user */
+                    SET
+                        userStatus           = #{userStatus}          /* 用户状态 0注销 1未验证 2已验证 */
+                    WHERE    userId = #{userId}  /* 用户ID,使用序列 */
+
+            </update>
+
+            <update id="upLoginStatus"
+                        parameterType="com.jiamsh.po.UserPO">
+
+                    UPDATE   /* updateById */
+                        userlogin  /* user */
+                    SET
+                          logins			 = #{logins}          /* 登录状态 0已登录 1未登录  */
+                    WHERE    accountId = #{accountId}  /* 用户ID,使用序列 */
+            </update>-->
+</mapper>

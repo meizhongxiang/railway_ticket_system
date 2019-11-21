@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.railwayTicketManager.dao.MemberDAO">
+	<insert id="infoAdd"
+			parameterType="com.railwayTicketManager.dao.po.MemberPO"
+			useGeneratedKeys="true"
+			keyProperty="userId">
+
+	        INSERT INTO   /* insert */
+	            member  /* user */
+	            (
+		        userId,
+    			accountId,
+    			integral
+	            )
+	        VALUES
+	            (
+		         #{userId}
+		        ,#{accountId}
+		        ,#{integral}
+	            )
+	</insert>
+	<select id="selectInfo"
+			parameterType="java.lang.Integer"
+			resultType="com.railwayTicketManager.dao.po.MemberPO">
+            SELECT
+            	userId,
+    			accountId,
+    			grade,
+    			integral
+            FROM  member
+            WHERE userId=#{userId}
+	</select>
+    <update id="addIntegral"
+            parameterType="com.railwayTicketManager.dao.po.MemberPO">
+                UPDATE   /* updateById */
+                    member /* user */
+                SET
+					integral	= integral + #{integral}
+                WHERE    userId = #{userId}
+    </update>
+	<update id="reduceIntegral"
+            parameterType="com.railwayTicketManager.dao.po.MemberPO">
+                UPDATE   /* updateById */
+                    member /* user */
+                SET
+					integral	= integral - #{integral}
+                WHERE    userId = #{userId}
+    </update>
+	<update id="updateGrade"
+            parameterType="java.lang.Integer">
+                UPDATE   /* updateById */
+                    member /* user */
+                SET
+					grade		= #{grade}
+                WHERE    userId = #{userId}
+    </update>
+	<delete id="delete"
+			parameterType="java.lang.Integer">
+                DELETE   /* updateById */
+                FROM member /* user */
+                WHERE   userId = #{userId}
+    </delete>
+</mapper>

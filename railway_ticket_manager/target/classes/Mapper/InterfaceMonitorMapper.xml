@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.railwayTicketManager.dao.InterfaceMonitorDAO">
+    <insert id="insertInfo"
+            parameterType="com.railwayTicketManager.dao.po.SystemMonitorPO"
+            useGeneratedKeys="true"
+            keyProperty="id">
+	        INSERT INTO
+	            interface_monitor
+	            (
+		        	interfaceName,
+					ywClass,
+					ywInfo,
+					startTime,
+					endTime,
+					useTime,
+					errorText,
+					rtStatus,
+					syStatus
+	            )
+	        VALUES
+	            (
+		         #{interfaceName}
+		        ,#{ywClass}
+		        ,#{ywInfo}
+		        ,#{startTime}
+		        ,#{endTime}
+		        ,#{useTime}
+		        ,#{errorText}
+		        ,#{rtStatus}
+		        ,#{syStatus}
+	            )
+	</insert>
+	<select id="getListPage"
+			parameterType="com.railwayTicketManager.dao.po.SystemMonitorPO"
+			resultType="com.railwayTicketManager.dao.po.SystemMonitorPO">
+		SELECT
+				t.interfaceName,
+				t.ywClass,
+				t.ywInfo,
+				t.startTime,
+				t.endTime,
+				t.useTime,
+				t.errorText,
+				t.rtStatus,
+				t.syStatus
+		FROM   interface_monitor  AS  t
+		<where>
+			<if test="page >= 0">
+				ORDER BY t.startTime desc limit #{page},10
+			</if>
+		</where>
+	</select>
+	<select id="selectCount"
+			parameterType="com.railwayTicketManager.dao.po.SystemMonitorPO"
+			resultType="java.lang.Integer">
+		SELECT
+		COUNT(id)
+		FROM   interface_monitor
+	</select>
+</mapper>

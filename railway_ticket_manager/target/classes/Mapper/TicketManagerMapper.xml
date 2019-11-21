@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.railwayTicketManager.dao.TicketBusinessDAO">
+    <insert id="addTicket"
+            parameterType="com.railwayTicketManager.dao.po.TicketBusinessPO"
+            useGeneratedKeys="true"
+            keyProperty="ticketId">
+
+	        INSERT INTO   /* insert */
+	            ticket_business
+	            (
+					trainNumber,
+					startDate,
+					startSite,
+					endSite,
+					startTime,
+					endTime,
+					classOne,
+					classTwo,
+					priceOne,
+					priceTwo,
+					useTime
+	            )
+	        VALUES
+	            (
+		         #{trainNumber}
+		        ,#{startDate}
+		        ,#{startSite}
+		        ,#{endSite}
+		        ,#{startTime}
+		        ,#{endTime}
+		        ,#{classOne}
+		        ,#{classTwo}
+		        ,#{priceOne}
+		        ,#{priceTwo}
+		        ,#{useTime}
+	            )
+	</insert>
+	<select id="queryTicket"
+			parameterType="com.railwayTicketManager.dao.po.TicketBusinessPO"
+			resultType="com.railwayTicketManager.dao.po.TicketBusinessPO">
+        SELECT a.trainNumber, a.startDate, a.startSite, a.endSite,
+        a.startTime, a.endTime,b.classOne, b.classTwo, a.priceOne,
+        a. priceTwo, a.useTime
+        FROM ticket_business a
+        INNER JOIN train_detail b
+        ON a.startDate = #{startDatestr}
+        AND a.startSite = #{startSite}
+        AND a.endSite = #{endSite}
+        AND a.trainNumber=b.trainNumber
+        AND a.startDate=b.startDate
+        ORDER BY ${orders} asc limit #{page},10
+           /* SELECT
+            		trainNumber,
+					startDate,
+					startSite,
+					endSite,
+					startTime,
+					endTime,
+					classOne,
+					classTwo,
+					priceOne,
+					priceTwo,
+					useTime
+            FROM  ticket_business*/
+		<!--<where>
+
+			<if test="startDatestr != null and startDatestr != ''">
+				  startDate =
+			</if>
+
+			<if test="startSite != null and startSite != ''">
+				AND  startSite =
+			</if>
+
+			<if test="endSite != null and endSite != ''">
+				AND  endSite =
+			</if>
+		</where>-->
+	</select>
+
+	<select id="countToday"
+			parameterType="com.railwayTicketManager.dao.po.TicketBusinessPO"
+			resultType="java.lang.Integer">
+		SELECT
+		count(*)
+		FROM  ticket_business a
+        INNER JOIN train_detail b
+        ON a.startDate = #{startDatestr}
+        AND a.startSite = #{startSite}
+        AND a.endSite = #{endSite}
+        AND a.trainNumber=b.trainNumber
+        AND a.startDate=b.startDate
+
+		<!--<where>
+
+		<if test="startDatestr != null and startDatestr != ''">
+			  startDate = #{startDatestr}
+		</if>
+
+		<if test="startSite != null and startSite != ''">
+			AND  startSite = #{startSite}
+		</if>
+
+		<if test="endSite != null and endSite != ''">
+			AND  endSite = #{endSite}
+		</if>
+		</where>-->
+	</select>
+
+    <update id="updateTicketPrice"
+            parameterType="com.railwayTicketManager.dao.po.TicketBusinessPO">
+                UPDATE
+                    ticket_business
+                SET
+				priceOne		= #{priceOne},
+				priceTwo		= #{priceTwo}
+                WHERE    trainNumber = #{trainNumber}
+                AND		startDate = #{startDate}
+    </update>
+	<select id="getTicketPrice"
+            parameterType="com.railwayTicketManager.dao.po.TicketBusinessPO"
+			resultType="com.railwayTicketManager.dao.po.TicketBusinessPO">
+                SELECT
+                *
+                FROM
+                    ticket_business
+                WHERE    trainNumber = #{trainNumber}
+                AND		startDate = #{startDate}
+    </select>
+	<update id="updateTicketNum"
+			parameterType="com.railwayTicketManager.dao.po.TrainDetailPO">
+                UPDATE   /* updateById */
+                    train_detail
+                SET
+				classOne		= #{classOne},
+				classTwo		= #{classTwo}
+                WHERE    trainNumber = #{trainNumber}
+                AND		startDate = #{startDate}
+        </update>
+	<delete id="deleteTicket"
+			parameterType="com.railwayTicketManager.dao.po.TicketBusinessPO">
+                DELETE
+                FROM
+                		ticket_business
+				WHERE    trainNumber = #{trainNumber}
+				AND    startDate = #{startDate}
+    </delete>
+	<delete id="deleteTicketDetail"
+			parameterType="com.railwayTicketManager.dao.po.TicketBusinessPO">
+                DELETE
+                FROM
+                		train_detail
+				WHERE    trainNumber = #{trainNumber}
+				AND    startDate = #{startDate}
+    </delete>
+	<select id="countInfo"
+			parameterType="com.railwayTicketManager.dao.po.TicketBusinessPO"
+			resultType="java.lang.Integer">
+		SELECT
+		count(*)
+		FROM  ticket_business
+		WHERE trainNumber =#{trainNumber}
+		AND startDate =#{startDate}
+	</select>
+	<update id="reduceTicketOne"
+			parameterType="com.railwayTicketManager.dao.po.TicketBusinessPO">
+                UPDATE
+                    train_detail
+                SET
+				classOne		= classOne - 1
+				WHERE    trainNumber = #{trainNumber}
+                AND		startDate = #{startDate}
+        </update>
+	<update id="reduceTicketTwo"
+			parameterType="com.railwayTicketManager.dao.po.TicketBusinessPO">
+                UPDATE
+                    train_detail
+                SET
+				classTwo		= classTwo - 1
+                WHERE    trainNumber = #{trainNumber}
+                AND		startDate = #{startDate}
+      </update>
+	<update id="pariseTicketOne"
+			parameterType="com.railwayTicketManager.dao.po.TicketBusinessPO">
+                UPDATE
+                    train_detail
+                SET
+				classOne		= classOne + 1
+                WHERE    trainNumber = #{trainNumber}
+                AND		startDate = #{startDate}
+        </update>
+	<update id="pariseTicketTwo"
+			parameterType="com.railwayTicketManager.dao.po.TicketBusinessPO">
+                UPDATE
+                    train_detail
+                SET
+				classTwo		= classTwo + 1
+                WHERE    trainNumber = #{trainNumber}
+                AND		startDate = #{startDate}
+        </update>
+</mapper>

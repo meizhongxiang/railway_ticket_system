@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.railwayTicketManager.dao.SaleTicketDAO">
+    <insert id="addOrderByUidAndAid"
+            parameterType="com.railwayTicketManager.dao.po.SaleTicketPO"
+            useGeneratedKeys="true"
+            keyProperty="ticketId">
+
+	        INSERT INTO
+	            sale_ticket
+	            (
+					trainNumber,
+					startDate,
+					passenger,
+					ticketClass,
+					ticketNum,
+					startSite,
+					endSite,
+					startTime,
+					endTime,
+					useTime,
+					price,
+					integral,
+					ticketStatus,
+					userAccountId,
+					userId,
+					buyDate
+	            )
+	        VALUES
+	            (
+		        #{trainNumber}
+		        ,#{startDate}
+		        ,#{passenger}
+		        ,#{ticketClass}
+		        ,#{ticketNum}
+		        ,#{startSite}
+		        ,#{endSite}
+		        ,#{startTime}
+		        ,#{endTime}
+		        ,#{useTime}
+		        ,#{price}
+		        ,#{integral}
+		        ,#{ticketStatus}
+		        ,#{userAccountId}
+		        ,#{userId}
+		        ,#{buyDate}
+	            )
+	</insert>
+	<select id="queryOrderByUidAndAid"
+			parameterType="com.railwayTicketManager.dao.po.SaleTicketPO"
+			resultType="com.railwayTicketManager.dao.po.SaleTicketPO">
+            SELECT
+					trainNumber,
+					startDate,
+					passenger,
+					ticketClass,
+					ticketNum,
+					startSite,
+					endSite,
+					startTime,
+					endTime,
+					useTime,
+					price,
+					integral,
+					ticketStatus,
+					userAccountId,
+					userId
+            FROM  sale_ticket
+            WHERE userId=#{userId}
+            AND userAccountId=#{userAccountId}
+	</select>
+    <update id="updateticketStatus"
+            parameterType="com.railwayTicketManager.dao.po.SaleTicketPO">
+                UPDATE
+                    sale_ticket
+                SET
+				ticketStatus		= #{ticketStatus}
+                WHERE    userId = #{userId}
+                AND		 userAccountId = #{userAccountId}
+                AND		 trainNumber = #{trainNumber}
+                AND		 startDate = #{startDate}
+        </update>
+	<select id="countToday"
+			parameterType="com.railwayTicketManager.dao.po.SaleTicketPO"
+			resultType="java.lang.Integer">
+            SELECT
+					count(userId)
+            FROM  sale_ticket
+            WHERE userId=#{userId}
+            AND userAccountId=#{userAccountId}
+	</select>
+
+	<select id="queryTicket"
+			parameterType="com.railwayTicketManager.dao.po.SaleTicketPO"
+			resultType="com.railwayTicketManager.dao.po.SaleTicketPO">
+		SELECT
+		trainNumber,
+		passenger,
+		startDate,
+		startSite,
+		endSite,
+		startTime,
+		endTime,
+		ticketClass,
+		ticketNum,
+		price,
+		ticketStatus,
+		useTime,
+		buyDate
+		FROM  sale_ticket
+		<where>
+			<if test="userId != null and userId != ''">
+				userId=#{userId}
+			</if>
+
+			<if test="userAccountId != null and userAccountId != ''">
+				AND  userAccountId=#{userAccountId}
+			</if>
+
+
+			<!--<if test="startDate != null and startDate != ''">
+				startDate = #{startDate}
+			</if>
+
+			<if test="startSite != null and startSite != ''">
+				AND  startSite = #{startSite}
+			</if>
+
+			<if test="endSite != null and endSite != ''">
+				AND  endSite = #{endSite}
+			</if>-->
+
+			<if test="page >= 0">
+				ORDER BY buyDate DESC	limit #{page},10
+			</if>
+		</where>
+	</select>
+
+	<select id="query"
+			parameterType="com.railwayTicketManager.dao.po.FinancialPO"
+			resultType="com.railwayTicketManager.dao.po.FinancialPO">
+		SELECT
+			distinct(trainNumber) ,
+			startSite,
+			endSite,startTime,endTime,
+			SUM(price) as price,
+			count(*) as num
+			FROM sale_ticket
+			where startDate= #{startDate}
+			and startSite=#{startSite}
+			And endSite=#{endSite}
+			And ticketStatus !=0
+			GROUP BY trainNumber,startSite,endSite,startTime,endTime
+			ORDER BY ${orders} desc limit #{page},10
+	</select>
+	<select id="getCount"
+			parameterType="com.railwayTicketManager.dao.po.FinancialPO"
+			resultType="java.lang.Integer">
+		SELECT
+			count(distinct(trainNumber))
+			FROM sale_ticket
+			where startDate= #{startDate}
+			and startSite=#{startSite}
+			And endSite=#{endSite}
+			And ticketStatus !=0
+	</select>
+	<update id="reduceTicketOne"
+			parameterType="com.railwayTicketManager.dao.po.TrainDetailPO">
+                UPDATE
+                    train_detail
+                SET
+				classOne		= #{classOne}-1
+                WHERE    trainNumber = #{trainNumber}
+                AND		 startDate = #{startDate}
+        </update>
+	<update id="reduceTicketTwo"
+			parameterType="com.railwayTicketManager.dao.po.TrainDetailPO">
+                UPDATE
+                    train_detail
+                SET
+				classTwo		= #{classTwo}-1
+                WHERE    trainNumber = #{trainNumber}
+                AND		 startDate = #{startDate}
+        </update>
+	<insert id="addDetail"
+			parameterType="com.railwayTicketManager.dao.po.TrainDetailPO"
+			useGeneratedKeys="true"
+			keyProperty="id">
+
+	        INSERT INTO
+	            train_detail
+	            (
+					trainNumber,
+					startDate,
+					classOne,
+					classTwo,
+					sumOne,
+					sumTwo
+	            )
+	        VALUES
+	            (
+		        #{trainNumber}
+		        ,#{startDate}
+		        ,#{classOne}
+		        ,#{classTwo}
+		        ,#{sumOne}
+		        ,#{sumTwo}
+	            )
+	</insert>
+	<select id="getTicketDetail"
+			parameterType="com.railwayTicketManager.dao.po.TrainDetailPO"
+			resultType="com.railwayTicketManager.dao.po.TrainDetailPO">
+		SELECT
+			*
+			FROM train_detail
+			where startDate= #{startDate}
+			and trainNumber=#{trainNumber}
+	</select>
+	<select id="countInfo"
+			parameterType="com.railwayTicketManager.dao.po.SaleTicketPO"
+			resultType="java.lang.Integer">
+		SELECT
+			count(trainNumber)
+			FROM sale_ticket
+			where startDate= #{startDate}
+			AND trainNumber=#{trainNumber}
+			AND userId=#{userId}
+			AND ticketStatus !=0
+	</select>
+</mapper>

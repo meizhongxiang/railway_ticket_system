@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.railwayTicketManager.dao.SequenceDAO" >
+  <select id="selectSequence" parameterType="java.lang.String" resultType="java.lang.Integer">
+		<![CDATA[
+		SELECT CURRENT_VALUE FROM T_SEQUENCE  WHERE NAME = #{seqName};
+		]]>
+	</select>
+
+  <!-- 更新sequence -->
+  <update id="updateSequence" parameterType="java.lang.String">
+   		<![CDATA[
+		UPDATE T_SEQUENCE  SET CURRENT_VALUE = CURRENT_VALUE + INCREMENT WHERE NAME =  #{seqName};
+		]]>
+	</update>
+</mapper>
